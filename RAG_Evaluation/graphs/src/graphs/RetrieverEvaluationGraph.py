@@ -30,7 +30,7 @@ class RetrievalEvaluationState(TypedDict):
     # --- INPUTS ---
     query: List[str]
     predicted_documents: List[List[Document]]
-    actual_documents: List[List[Document]]
+    ground_truth_documents: List[List[Document]]
     metrics_to_run: List[str]
     model: AzureChatOpenAI | ChatOpenAI | str
     k: int
@@ -62,11 +62,11 @@ def instantiate_evaluator_node(state: RetrievalEvaluationState) -> dict:
     print("\n--- (1) Instantiating Evaluator ---")
     evaluator = RetrievalEvaluator(
         query=state["query"],
-        actual_documents=state["actual_documents"],
+        ground_truth_documents=state["ground_truth_documents"],
         predicted_documents=state["predicted_documents"],
         model=state["model"],
     )
-    sleep(2)
+    # sleep(2)
     return {
         "evaluator": evaluator,
     }
@@ -77,7 +77,7 @@ def mrr_node(state: RetrievalEvaluationState) -> dict:
     evaluator = state["evaluator"]
     k = state["k"]
     mrr_score = evaluator.mrr(k=k)
-    sleep(2)
+    # sleep(2)
     return {
         "mrr_score": mrr_score
         }
@@ -88,7 +88,7 @@ def map_node(state: RetrievalEvaluationState) -> dict:
     evaluator = state["evaluator"]
     k = state["k"]
     map_score = evaluator.map(k=k)
-    sleep(2)
+    # sleep(2)
     return {"map_score": map_score}
 
 def f1_node(state: RetrievalEvaluationState) -> dict:
@@ -110,7 +110,7 @@ def ndcg_node(state: RetrievalEvaluationState) -> dict:
     evaluator = state["evaluator"]
     k = state["k"]
     ndcg_score = evaluator.ndcg(k=k)
-    sleep(2)
+    # sleep(2)
     return {"ndcg_score": ndcg_score}
 
 def context_relevance_node(state: RetrievalEvaluationState) -> dict:
@@ -118,7 +118,7 @@ def context_relevance_node(state: RetrievalEvaluationState) -> dict:
     print("--- (2e) Running Context Relevance Node ---")
     evaluator = state["evaluator"]
     context_relevance_score = evaluator.context_relevance()
-    sleep(2)
+    # sleep(2)
     return {"context_relevance_score": context_relevance_score}
 
 def precision_node(state: RetrievalEvaluationState) -> dict:
@@ -128,7 +128,7 @@ def precision_node(state: RetrievalEvaluationState) -> dict:
     k = state["k"]
     precision_micro, precision_macro = evaluator.precision(k=k)
     # logging.DEBUG(f" PRECISION SCORE DEBUG: {precision_micro, precision_macro}")
-    sleep(2)
+    # sleep(2)
     return {
         "precision_micro": precision_micro,
         "precision_macro": precision_macro
@@ -141,7 +141,7 @@ def recall_node(state: RetrievalEvaluationState) -> dict:
     k = state["k"]    
     recall_micro, recall_macro = evaluator.recall(k=k)
     # logging.DEBUG(f" RECALL SCORE DEBUG: {recall_micro, recall_macro}")
-    sleep(2)
+    # sleep(2)
     return {
         "recall_micro": recall_micro,
         "recall_macro": recall_macro
@@ -164,7 +164,7 @@ def finalize_node(state: RetrievalEvaluationState) -> dict:
     }
     # Remove any None entries
     final_scores = {k: v for k, v in final_scores.items() if v is not None}
-    sleep(2)
+    # sleep(2)
     return {"final_results": final_scores}
 
 
@@ -179,7 +179,7 @@ def parallelize_metrics(state: RetrievalEvaluationState) -> str:
     
     if metric not in METRICS_LIST:
         print("No evaluation metric selected\n Choose from the following metrics list \n{METRICS_LIST}")
-    sleep(2)
+    # sleep(2)
     return metric
 # --- 5. Build and Compile the Subgraph ---
 def create_retrieval_subgraph(metrics_to_run: List[str]):

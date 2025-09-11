@@ -1,6 +1,6 @@
 # DATATYPE: {
 #     predicted_documents: List[List[Document]],
-#     actual_documents: List[List[Document]],
+#     ground_truth_documents: List[List[Document]],
 #     metrics_to_run: List[str],
 #     k: int,
 #     # --- INTERNAL STATE ---

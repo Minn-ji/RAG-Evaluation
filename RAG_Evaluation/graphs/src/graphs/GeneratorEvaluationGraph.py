@@ -44,7 +44,7 @@ def instantiate_evaluator_node(state: GeneratorEvaluationState) -> dict:
         generated_answer=state["generated_answer"],
         model=state["model"],
     )
-    sleep(2)
+    # sleep(2)
     return {
         "evaluator": evaluator,
     }
@@ -54,7 +54,7 @@ async def rouge_node(state: GeneratorEvaluationState):
     print("--- (2a) Running rouge Node ---")
     evaluator = state["evaluator"]
     rouge_score = await evaluator.rouge()
-    sleep(2)
+    # sleep(2)
     return {"rouge_score": rouge_score}
 
 async def bleu_node(state: GeneratorEvaluationState):
@@ -62,7 +62,7 @@ async def bleu_node(state: GeneratorEvaluationState):
     print("--- (2b) Running BLEU Node ---")
     evaluator = state["evaluator"]
     bleu_score = await evaluator.bleu()
-    sleep(2)
+    # sleep(2)
     return {"bleu_score": bleu_score}
 
 
@@ -71,7 +71,7 @@ async def faithfulness_node(state: GeneratorEvaluationState):
     print("--- (2c) Running Faithfulness Node ---")
     evaluator = state["evaluator"]
     faithfulness_score = await evaluator.faithfulness()
-    sleep(2)
+    # sleep(2)
     return {"faithfulness_score": faithfulness_score}
 
 def finalize_node(state: GeneratorEvaluationState) -> dict:
@@ -84,7 +84,7 @@ def finalize_node(state: GeneratorEvaluationState) -> dict:
     }
     # Remove any None entries
     final_scores = {k: v for k, v in final_scores.items() if v is not None}
-    sleep(2)
+    # sleep(2)
     return {"final_results": final_scores}
 
 
@@ -100,7 +100,7 @@ def parallelize_metrics(state: GeneratorEvaluationState) -> str:
     
     if metric not in METRICS_LIST:
         print("No evaluation metric selected\n Choose from the following metrics list \n{METRICS_LIST}")
-    sleep(2)
+    # sleep(2)
     return metric
 # --- 5. Build and Compile the Subgraph ---
 def create_generation_subgraph(metrics_to_run: List[str]):

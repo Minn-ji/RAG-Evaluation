@@ -19,7 +19,7 @@ from fastapi import File
         class RetrievalEvaluationState(TypedDict):
             # --- INPUTS ---
             predicted_documents: List[List[Document]]
-            actual_documents: List[List[Document]]
+            ground_truth_documents: List[List[Document]]
             metrics_to_run: List[str]
             k: int
 
@@ -54,7 +54,7 @@ from fastapi import File
 
 # api/v1/configuration
 class RetrievalMetrics(BaseModel):
-    retrieval_metrics: List[Literal["mrr" "map", "f1", "ndcg", "precision", "recall"]]
+    retrieval_metrics: List[Literal["mrr", "map", "f1", "ndcg", "precision", "recall"]]
 
 # api/v1/configuration
 class GenerationMetrics(BaseModel):
@@ -83,7 +83,7 @@ class EvaluationRequest(BaseModel):
 
 class RetrievalModel(BaseModel):
     query: List[str] = Field(..., description="The input query or question.")
-    predicted_documents: List[Document] = Field(
+    predicted_documents: List[List[Document]] = Field(
         ..., description="List of predicted document IDs."
     )
     ground_truth_documents: List[List[Document]] = Field(

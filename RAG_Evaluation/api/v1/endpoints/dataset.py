@@ -3,6 +3,8 @@ from pymongo import MongoClient
 from schema import BenchmarkRequest
 from dotenv import load_dotenv
 from typing import List
+import polars as pl
+import json
 from langchain_core.documents import Document
 from ..SHARED_PROCESS import SHARED_PROCESS
 from pathlib import Path 
@@ -64,6 +66,37 @@ def get_benchmark_dataset(request: BenchmarkRequest):
             detail=f"Dataset with name '{request.dataset_name}' not found.",
         )
 
+    serialized_dataset = serialize_doc(benchmark_dataset)
+    SHARED_PROCESS[request.session_id]["benchmark_dataset"] = serialized_dataset
+
+    return {"status": "OK"}
+
+
+@router.post("/get-benchmark-dataset-without-mongo")
+def get_benchmark_dataset(request: BenchmarkRequest):
+    print(f"Searching for dataset with name: '{request.dataset_name}'")
+
+    if request.session_id not in SHARED_PROCESS.keys():
+        assert request.session_id
+        raise HTTPException(
+            status_code=400, detail=f"Session ID {request.session_id} is invalid"
+        )
+
+
+
+    data_path = Path(".").parent.parent / 'test' / f"{request.dataset_name}.json" #temp_rag_data
+
+    with open(data_path, "r", encoding="utf-8") as f:
+        benchmark_dataset = json.load(f)
+
+    if benchmark_dataset is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Dataset with name '{request.dataset_name}' not found.",
+        )
+
+    benchmark_dataset["model"] = SHARED_PROCESS[request.session_id]["config"]["model"]
+    benchmark_dataset["k"] = SHARED_PROCESS[request.session_id]["config"]["top_k"]
     serialized_dataset = serialize_doc(benchmark_dataset)
     SHARED_PROCESS[request.session_id]["benchmark_dataset"] = serialized_dataset
 
