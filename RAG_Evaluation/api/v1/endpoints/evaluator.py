@@ -109,4 +109,3 @@ async def evaluator(evaluation_request: EvaluationRequest):
     generator_evaluation_result = response.get("generator_evaluation_result")
     print(retrieval_evaluation_result, generator_evaluation_result)
     return retrieval_evaluation_result, generator_evaluation_result
-

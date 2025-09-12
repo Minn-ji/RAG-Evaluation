@@ -57,4 +57,3 @@ async def get_benchmark_dataset(request: BenchmarkRequest):
     set_cache(session_id, session_data)
 
     return {"status": "OK"}
-

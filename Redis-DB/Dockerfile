@@ -14,6 +14,6 @@ RUN pip install "fastapi>=0.116.1" "uvicorn>=0.23.2" "redis>=5.0.1"
 COPY . .
 
 # Command to run the application
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8001"]
 
 

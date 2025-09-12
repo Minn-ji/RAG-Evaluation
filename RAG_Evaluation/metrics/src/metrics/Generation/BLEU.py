@@ -18,19 +18,35 @@ async def bleu(response: List, reference:List) -> Dict[str, float]:
     """
     scorer = BleuScore()
     results = []
-    data_list = [SingleTurnSample(
-        response=res,
-        reference=doc
-    ) for res, doc in zip(response, reference)]
 
-    for i in tqdm(data_list):
-        temp = await scorer.single_turn_ascore(i)
+    # Document → string 
+    def normalize_text(item):
+        if isinstance(item, str):
+            return item
+        elif isinstance(item, dict):
+            return item.get("text") or item.get("page_content", "")
+        elif hasattr(item, "page_content"):
+            return item.page_content
+        elif isinstance(item, list):
+            return " ".join([normalize_text(sub) for sub in item])
+        else:
+            return str(item)
+
+    data_list = [
+        SingleTurnSample(
+            response=normalize_text(res),
+            reference=normalize_text(ref)
+        )
+        for res, ref in zip(response, reference)
+    ]
+
+    for sample in tqdm(data_list):
+        temp = await scorer.single_turn_ascore(sample)
         results.append(temp)
-    
-
 
     if not results:
         result = 0.0
-    result = np.mean(results)
-    # print(f"BLEU MODULE {result}")
+    else:
+        result = float(np.mean(results))
+
     return result
