@@ -240,7 +240,7 @@ class DataPreprocessor:
 ################main#######################
 async def data_process(data):
 
-    # embeddings = OpenAIEmbeddings(model="text-embedding-3-large", api_key=api_key)
+    embeddings = None # OpenAIEmbeddings(model="text-embedding-3-large", api_key=api_key)
     llm = ChatOpenAI(
         model="gemma-3-4b-it",
         api_key='token-123',
@@ -249,7 +249,7 @@ async def data_process(data):
 
     # llm = ChatOpenAI(model="gpt-4o-mini", api_key=api_key)
 
-    solver = DataPreprocessor(llm_model=llm)
+    solver = DataPreprocessor(embedding_model=embeddings, llm_model=llm)
     receiver = DataReceiver()
     sample_raw_data = await receiver.receive_rawdata_csv(content=data)
     sample_raw_data = sample_raw_data['samples'] 
