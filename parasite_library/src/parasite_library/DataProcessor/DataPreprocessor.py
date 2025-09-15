@@ -240,21 +240,21 @@ class DataPreprocessor:
 ################main#######################
 async def data_process(data):
 
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-large", api_key=api_key)
-    # llm = ChatOpenAI(
-    #     model="gemma",
-    #     api_key='token-123',
-    #     base_url="http://localhost:8000/v1",
-    # )
+    # embeddings = OpenAIEmbeddings(model="text-embedding-3-large", api_key=api_key)
+    llm = ChatOpenAI(
+        model="gemma-3-4b-it",
+        api_key='token-123',
+        base_url="http://localhost:8000/v1",
+    )
 
-    llm = ChatOpenAI(model="gpt-4o-mini", api_key=api_key)
+    # llm = ChatOpenAI(model="gpt-4o-mini", api_key=api_key)
 
-    solver = DataPreprocessor(embedding_model=embeddings, llm_model=llm)
+    solver = DataPreprocessor(llm_model=llm)
     receiver = DataReceiver()
     sample_raw_data = await receiver.receive_rawdata_csv(content=data)
     sample_raw_data = sample_raw_data['samples'] 
     ## for test
-    sample_raw_data = sample_raw_data[:1]
+    sample_raw_data = sample_raw_data[:500]
 
     benchmark_data_result_path = await solver.create_generation_bench_data(sample_raw_data, save_benchmark_name="lotte_korag")
 
