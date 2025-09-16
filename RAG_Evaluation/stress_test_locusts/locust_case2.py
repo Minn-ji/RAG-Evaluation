@@ -9,7 +9,7 @@ class RAGEvaluationUser(HttpUser):
     def run_evaluation_flow(self):
         """
         1) /v1/config
-        2) /v1/dataset/get-benchmark-dataset-without-mongo
+        2) /v1/dataset/get-benchmark-dataset
         3) /v1/evaluate/
         """
 
@@ -40,7 +40,7 @@ class RAGEvaluationUser(HttpUser):
         dataset_payload = {
             "session_id": session_id,
             "user_id": user_id,
-            "dataset_name": "temp_rag_data"
+            "dataset_name": "bench_lotte_ko_rag.csv"
         }
 
         with self.client.post("/v1/dataset/get-benchmark-dataset",
