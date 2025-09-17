@@ -2,6 +2,14 @@ from locust import HttpUser, task, between
 import random
 import uuid
 
+
+
+## insert data to mongo first
+# curl -X POST \
+#     -F "file=@/home/minjichoi/RAG-Evaluation/RAG_Evaluation/stress_test_locusts/bench_lotte_korag.csv" \
+#     "http://localhost:8001/v1/insert?user_id=minjichoi"
+
+
 class RAGEvaluationUser(HttpUser):
     wait_time = between(1,2)  # 각 task 실행 간격 (1~2초)
 
@@ -13,19 +21,15 @@ class RAGEvaluationUser(HttpUser):
         3) /v1/evaluate/
         """
 
-        user_id = f"user-{uuid.uuid4()}"
+        user_id = "minjichoi"
 
         # ---------- STEP 1. config ----------
         config_payload = {
             "user_id": user_id,
-            "retrieval_metrics": {
-                "retrieval_metrics": ["mrr", "map", "f1", "precision"]
-            },
-            "generation_metrics": {
-                "generation_metrics": ["bleu", "rouge"]
-            },
+            "retrieve_metrics": ["mrr", "map", "f1", "precision"],
+            "generate_metrics": ["bleu", "rouge"],
             "top_k": 5,
-            "model": "openai",
+            "model": None,
             "evaluation_mode": "full"
         }
 
@@ -40,7 +44,7 @@ class RAGEvaluationUser(HttpUser):
         dataset_payload = {
             "session_id": session_id,
             "user_id": user_id,
-            "dataset_name": "bench_lotte_ko_rag.csv"
+            "dataset_name": "bench_lotte_korag.csv"
         }
 
         with self.client.post("/v1/dataset/get-benchmark-dataset",
