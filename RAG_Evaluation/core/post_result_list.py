@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 from cache_redis import get_cache, set_cache
 
 
-class ApiClient:
+class DataPointApiClient:
     def __init__(self, session_id: str, endpoint: str):
         self.endpoint = endpoint
         self.session_id = session_id
@@ -62,6 +62,8 @@ async def send_datapoint():
         metric_name = payload['metric_name']
         score_result = payload["eval_result"][metric_name][0]
         error_list = payload["eval_result"][metric_name][1]
+
+
         payload = {"metric_name" : metric_name, "metric_score": score_result}
         sender.send_redis(data=payload, error=error_list)
 
