@@ -25,15 +25,15 @@ def cleanse_data(data: List[Dict[str, Any]], max_retrieved_docs: int = 5) -> Dic
     generated_answers = []
 
     for row in data:
-        queries.append(row.get("question"))
-        ground_truth_answers.append(row.get("target_answer"))
-        generated_answers.append(row.get("response"))
+        queries.append(row["question"])
+        ground_truth_answers.append(row["target_answer"])
+        generated_answers.append(row["response"])
 
         current_ground_truth_docs = []
         gt_doc = _create_document(
-            page_content=row.get("target_answer"),
-            file_name=row.get("target_file_name"),
-            page_num=row.get("target_page_no")
+            page_content=row["target_answer"],
+            file_name=row["target_file_name"],
+            page_num=row["target_page_no"]
         )
         if gt_doc:
             current_ground_truth_docs.append(gt_doc)
@@ -46,9 +46,9 @@ def cleanse_data(data: List[Dict[str, Any]], max_retrieved_docs: int = 5) -> Dic
             page_key = f'retrieved_page{i}'
 
             pred_doc = _create_document(
-                page_content=row.get(cont_key),
-                file_name=row.get(doc_key),
-                page_num=row.get(page_key)
+                page_content=row[cont_key],
+                file_name=row[doc_key],
+                page_num=row[page_key]
             )
             if pred_doc:
                 current_predicted_docs.append(pred_doc)
@@ -88,14 +88,13 @@ def create_input_payload(request):
     if not stored_session_json:
         raise HTTPException(status_code=404, detail="Session not found or has expired.")
     session_data = json.loads(stored_session_json)
-    
+    print("stored_session_json", stored_session_json)
     config = session_data["config"]
     config = json.loads(config)
     benchmark_dataset = session_data["benchmark_dataset"]
     
     if not config or not benchmark_dataset:
         raise ValueError("Configuration or benchmark_dataset is missing.")
-    
     cleansed_data = cleanse_data(benchmark_dataset)
     
     retrieval_dataset = None 
@@ -103,30 +102,30 @@ def create_input_payload(request):
     
     print("Dataset type is 'RetrievalModel'. Populating retrieval payload.")
     retrieval_dataset = {
-        "query": cleansed_data.get("query", []),
-        "predicted_documents": cleansed_data.get("predicted_documents", []),
-        "ground_truth_documents": cleansed_data.get("ground_truth_documents", []), # List[List of text]
-        "model": config.get("model", ""),
-        "k": config.get("top_k", ""),
+        "query": cleansed_data["query"],
+        "predicted_documents": cleansed_data["predicted_documents"],
+        "ground_truth_documents": cleansed_data["ground_truth_documents"], # List[List of text]
+        "model": config["model"],
+        "k": config["top_k"],
     }
     
     print("Dataset type is 'GenerationModel'. Populating generation payload.")
     generation_dataset = {
-        "query": cleansed_data.get("query", []),
-        "ground_truth_answer": cleansed_data.get("ground_truth_answer", []),
-        "retrieved_contexts": cleansed_data.get("retrieved_contexts", []),
-        "generated_answer": cleansed_data.get("generated_answer", []),
-        "model": config.get("model", ""),
+        "query": cleansed_data["query"],
+        "ground_truth_answer": cleansed_data["ground_truth_answer"],
+        "retrieved_contexts": cleansed_data["retrieved_contexts"],
+        "generated_answer": cleansed_data["generated_answer"],
+        "model": config["model"],
     }
 
     final_payload = {
-        "retrieve_metrics": config.get("retrieve_metrics", []),
-        "generate_metrics":config.get("generate_metrics", []),
+        "retrieve_metrics": config["retrieve_metrics"],
+        "generate_metrics":config["generate_metrics"],
         "dataset": {
             "Retrieval": retrieval_dataset,
             "Generation": generation_dataset,
         },
-            "evaluation_mode": config.get("evaluation_mode", ""),
+            "evaluation_mode": config["evaluation_mode"],
     }
 
     return final_payload

@@ -36,5 +36,10 @@ async def receieve_data(file: UploadFile = File(...)):
 
     
     return {"status": "ok", "data": preprocessed_data}
+
+@app.post("/generate-report")
+async def generate_result():
+    pass
+
 # src
 #  uv run uvicorn app:app --reload --port 8001

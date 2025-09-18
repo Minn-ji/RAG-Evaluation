@@ -90,7 +90,6 @@ class DataPreprocessor:
         return splits
 
     def add_documents(self, documents: List[Document]):
-
         if not documents:
             return None
         return self.vector_store.add_documents(documents=documents)
@@ -210,7 +209,7 @@ class DataPreprocessor:
         save_path = Path('.').resolve().parent.parent
         save_csv_path = save_path /  "RAG_Evaluation" / "test" / f"bench_{save_benchmark_name}.csv"
         bench_df.to_csv(save_csv_path, index=False)
-        
+        print('#### result ####\n', bench_df)
         import json
         save_json_path = save_path / "RAG_Evaluation" / "test" / f"bench_{save_benchmark_name}.json"
         with open(save_json_path, "w", encoding="utf-8") as f:
@@ -242,7 +241,7 @@ async def data_process(data):
 
     embeddings = OpenAIEmbeddings(model="text-embedding-3-large", api_key=api_key)
     # llm = ChatOpenAI(
-    #     model="gemma",
+    #     model="gemma-3-4b-it",
     #     api_key='token-123',
     #     base_url="http://localhost:8000/v1",
     # )
@@ -254,7 +253,7 @@ async def data_process(data):
     sample_raw_data = await receiver.receive_rawdata_csv(content=data)
     sample_raw_data = sample_raw_data['samples'] 
     ## for test
-    sample_raw_data = sample_raw_data[:1]
+    sample_raw_data = sample_raw_data[:2]
 
     benchmark_data_result_path = await solver.create_generation_bench_data(sample_raw_data, save_benchmark_name="lotte_korag")
 
