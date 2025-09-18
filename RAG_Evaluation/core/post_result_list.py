@@ -5,6 +5,16 @@ import asyncio
 from fastapi import FastAPI, HTTPException
 from cache_redis import get_cache, set_cache
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,   
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    filename="log_file.log",              
+    filemode="a" # 이어쓰기
+)
+
+logger = logging.getLogger(__name__)
 
 class DataPointApiClient:
     def __init__(self, session_id: str, endpoint: str):
@@ -15,6 +25,7 @@ class DataPointApiClient:
     def send_redis(self, data: Dict[str, Any], error: [str]):
         # Redis 저장
         session_data = get_cache(session_id=self.session_id)
+        logger.info(f"get session data from get_cache \n{session_data}")
         if isinstance(session_data, str):
             session_data = json.loads(session_data)
         
@@ -27,7 +38,7 @@ class DataPointApiClient:
             
         session_data[self.session_id]["metric_result"][data["metric_name"]]["score"] = data["metric_score"] ##
         session_data[self.session_id]["metric_result"][data["metric_name"]]["error_index"] = error
-        
+        logger.info(f"session data updated: {session_data}")
         return set_cache(session_id=self.session_id, input=session_data)
 
     async def send_dashboard(self, payload: Dict[str, Any]):
@@ -47,24 +58,25 @@ app = FastAPI()
 
 async def send_datapoint():
     try:
-        session_id="session-1234"
-        endpoint="http://localhost:8000/eval_result"
-
-        sender = ApiClient(session_id=session_id, endpoint=endpoint)
-
+    
+        # f1 -> 거쳐서 나온 데이터 payload
+        
         payload = {"metric_name": "f1", 
                    "eval_result": {"f1": [[1,2,3,4,5,6],
                                           [1,2]
                                           ]
                                   }}
-    
-        # f1 -> 거쳐서 나온 데이터 payload
         metric_name = payload['metric_name']
         score_result = payload["eval_result"][metric_name][0]
         error_list = payload["eval_result"][metric_name][1]
 
 
         payload = {"metric_name" : metric_name, "metric_score": score_result}
+
+        session_id="session-1234"
+        endpoint="http://localhost:8000/eval_result"
+        logger.info(f"send_datapoint started with session_id={session_id} endpoint=endpoint")
+        sender = DataPointApiClient(session_id=session_id, endpoint=endpoint)
         sender.send_redis(data=payload, error=error_list)
 
         for point in score_result:
@@ -76,9 +88,18 @@ async def send_datapoint():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+from typing import Dict
+
 @app.post("/send-datapoint")
 async def main():
-    send_datapoint()
+    return await send_datapoint()
+
+
+@app.post("/eval_result") # 
+async def get_eval_result(payload: Dict[str, Any]):
+    print("payload:", payload)
+    return {"eval_result": payload}
+
 
 
 if __name__ == "__main__":

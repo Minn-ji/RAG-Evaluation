@@ -3,11 +3,14 @@ services:
     build: .
     container_name: myapi
     ports:
-      - "8002:8002"
+      - "8001:8001"
     depends_on:
-      - redis
+      - cache_redis
+    environment:
+      - REDIS_HOST=cache_redis
+      - REDIS_PORT=6379
 
-  redis:
+  cache_redis:
     image: redis:latest
     container_name: myredis
     ports:
